@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductCondition {
+  LIKE_NEW
+  GOOD
+  FAIR
+}
+
+enum ProductStatus {
+  ACTIVE
+  RESERVED
+  SOLD
+}
+
+model Seller {
+  id        String    @id @default(cuid())
+  name      String
+  avatar    String?
+  location  String
+  createdAt DateTime  @default(now())
+  products  Product[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  icon     String
+  products Product[]
+}
+
+model Product {
+  id            String           @id @default(cuid())
+  name          String
+  description   String
+  price         Int
+  originalPrice Int?
+  imageUrl      String
+  condition     ProductCondition @default(GOOD)
+  status        ProductStatus    @default(ACTIVE)
+  location      String
+  isFeatured    Boolean          @default(false)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  sellerId      String
+  categoryId    String
+  seller        Seller           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category      Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  orderItems    OrderItem[]
+
+  @@index([status, createdAt])
+  @@index([categoryId, status])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  buyerName   String
+  buyerEmail  String
+  total       Int
+  createdAt   DateTime    @default(now())
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int     @default(1)
+  unitPrice Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, productId])
+}
