@@ -1,4 +1,4 @@
-# Lại Dùng
+# web_banhangtly — Lại Dùng
 
 Chợ đồ cũ tuyển chọn bằng tiếng Việt, xây dựng với Next.js, TypeScript, Prisma và SQLite.
 
